@@ -1,9 +1,11 @@
 <?php
 /*
 Plugin Name: getFullMissingDerivatives
-Version: 2.4.a
+Version: 2.4.b
 Description: Add a web-service for custom derivatives generation
+Plugin URI: http://piwigo.org/ext/extension_view.php?eid=709
 Author: tanguy2m
+Author URI: https://github.com/tanguy2m
 */
 
 function ws_getFullMissingDerivatives($params, &$service)
@@ -121,7 +123,6 @@ function ws_getFullMissingDerivatives($params, &$service)
   return $ret;
 }
 
-// Déclaration des web-services
 add_event_handler('ws_add_methods', 'extend_ws');
 function extend_ws($arr) {
   $service = &$arr[0];
