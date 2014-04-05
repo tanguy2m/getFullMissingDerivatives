@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: getFullMissingDerivatives
-Version: 2.4.b
+Version: 2.6.a
 Description: Add a web-service for custom derivatives generation
 Plugin URI: http://piwigo.org/ext/extension_view.php?eid=709
 Author: tanguy2m
@@ -10,11 +10,6 @@ Author URI: https://github.com/tanguy2m
 
 function ws_getFullMissingDerivatives($params, &$service)
 {
-  if (!is_admin())
-  {
-    return new PwgError(403, 'Forbidden');
-  }
-
   if ( empty($params['types']) )
   {
     $types = array_keys(ImageStdParams::get_defined_type_map());
@@ -125,32 +120,50 @@ function ws_getFullMissingDerivatives($params, &$service)
 
 add_event_handler('ws_add_methods', 'extend_ws');
 function extend_ws($arr) {
+
+  $f_params = array(
+    'f_min_rate' => array('default'=>null,
+                          'type'=>WS_TYPE_FLOAT),
+    'f_max_rate' => array('default'=>null,
+                          'type'=>WS_TYPE_FLOAT),
+    'f_min_hit' =>  array('default'=>null,
+                          'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+    'f_max_hit' =>  array('default'=>null,
+                          'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+    'f_min_ratio' => array('default'=>null,
+                           'type'=>WS_TYPE_FLOAT|WS_TYPE_POSITIVE),
+    'f_max_ratio' => array('default'=>null,
+                           'type'=>WS_TYPE_FLOAT|WS_TYPE_POSITIVE),
+    'f_max_level' => array('default'=>null,
+                           'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+    'f_min_date_available' => array('default'=>null),
+    'f_max_date_available' => array('default'=>null),
+    'f_min_date_created' =>   array('default'=>null),
+    'f_max_date_created' =>   array('default'=>null),
+    );
+	
   $service = &$arr[0];
   $service->addMethod(
     'pwg.getFullMissingDerivatives',
     'ws_getFullMissingDerivatives',
-    array(
-      'types'=>array('default'=>array(),'flags'=>WS_PARAM_FORCE_ARRAY),
-      'custom_width' => array('default'=>null),
-      'custom_height' => array('default'=>null),
-      'custom_crop' => array('default'=>0),
-      'custom_min_width' => array('default'=>null),
-      'custom_min_height' => array('default'=>null),
-      'ids' =>array('default'=>array(),'flags'=>WS_PARAM_FORCE_ARRAY),
-      'max_urls' =>   array('default'=>200),
-      'prev_page' =>  array('default'=>null),
-	  'f_min_rate' => array('default'=>null),
-	  'f_max_rate' => array('default'=>null),
-	  'f_min_hit' =>  array('default'=>null),
-	  'f_max_hit' =>  array('default'=>null),
-	  'f_min_date_available' => array('default'=>null),
-	  'f_max_date_available' => array('default'=>null),
-	  'f_min_date_created' =>   array('default'=>null),
-	  'f_max_date_created' =>   array('default'=>null),
-	  'f_min_ratio' => array('default'=>null),
-	  'f_max_ratio' => array('default'=>null),
-	  'f_max_level' => array('default'=>null)
-    ),
+     array_merge(array(
+      'types'=>array(
+	    'default'=>null,
+		'flags'=>WS_PARAM_FORCE_ARRAY,
+		'info'=>'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge, custom'
+	  ),
+      'custom_width' => array('default'=>0,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+      'custom_height' => array('default'=>0,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+      'custom_crop' => array('default'=>0,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+      'custom_min_width' => array('default'=>0,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+      'custom_min_height' => array('default'=>0,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+      'ids' =>array(
+		'flags'=>WS_PARAM_OPTIONAL|WS_PARAM_FORCE_ARRAY,
+		'type'=>WS_TYPE_ID
+	  ),
+      'max_urls' =>   array('default'=>200,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE),
+      'prev_page' =>  array('default'=>null,'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE)
+    ),$f_params),
     "retrieves a list of derivatives to build<br>For custom derivatives, add 'custom' in the <i>types</i> field and use <i>custom_*</i> fields for params"
   );
 }
